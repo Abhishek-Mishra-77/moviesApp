@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import MoviesList from './components/MoviesList';
+import MovieForm from './MovieForm';
 import './App.css';
 
 
@@ -9,7 +10,6 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const intervalRef = useRef(null)
-
 
 
   const fetchMoviesHandler = useCallback(async () => {
@@ -45,15 +45,17 @@ function App() {
   }, [])
 
 
-  console.log('useEffect')
-
   useEffect(() => {
     fetchMoviesHandler();
-  }, [])
+  }, [fetchMoviesHandler])
 
 
-
-
+  const addNewMovie = (moviee) => {
+    console.log(moviee)
+    setMovies((movie) => {
+      return [...movie, { title: moviee.title, openingText: moviee.openingText, releasedate: moviee.date, id: Math.random().toString() }]
+    })
+  }
 
 
   const cacelfetchMoviesHandler = () => {
@@ -66,9 +68,11 @@ function App() {
 
 
 
-
   return (
     <div>
+      <section className='section-form'>
+        <MovieForm addNewMovie={addNewMovie} />
+      </section>
       <section className='section'>
         <button onClick={fetchMoviesHandler}>Fetch Movies</button>
       </section>

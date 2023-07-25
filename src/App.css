@@ -1,11 +1,23 @@
+.section-form {
+  display: flex;
+  justify-content: center;
+  align-self: center;
+  width: 55%;
+  margin-left: 17%;
+  margin-top: 3%;
+  height: 400px;
+  border-radius: 12px;
+  background-color: white;
+  box-shadow: 0px 0px 10px 0px;
+}
 .section {
   display: flex;
   justify-content: center;
   align-self: center;
-  width: 62%;
+  width: 55%;
   margin-left: 17%;
   margin-top: 3%;
-  height: 200px;
+  height: 120px;
   border-radius: 12px;
   background-color: white;
   box-shadow: 0px 0px 10px 0px;
@@ -23,12 +35,11 @@
   color: white;
 }
 
-
 .section1 {
   display: flex;
   justify-content: center;
   align-self: center;
-  width: 62%;
+  width: 55%;
   margin-left: 17%;
   margin-top: 2%;
   text-align: center;
@@ -50,6 +61,3 @@
   font-weight: bold;
   color: white;
 }
-
-
-
