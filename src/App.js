@@ -1,24 +1,79 @@
-import logo from './logo.svg';
+import React, {useState, useRef } from 'react';
+import MoviesList from './components/MoviesList';
 import './App.css';
 
+
 function App() {
+
+  const [movie, setMovies] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const intervalRef = useRef(null)
+
+
+
+  async function fetchMoviesHandler() {
+    setIsLoading(true);
+    setError(null)
+    try {
+      const response = await fetch('https://swapi.dev/api/film')
+
+      if (!response.ok) {
+        throw new Error('Something went wrong ....Retrying')
+      }
+
+      const data = await response.json();
+      const transformedMovies = data.results.map((movieData) => {
+        return {
+          id: movieData.episode_id,
+          title: movieData.title,
+          openingText: movieData.opening_crawl,
+          releasedate: movieData.release_date
+        }
+      })
+      setMovies(transformedMovies)
+    }
+    catch (error) {
+      setError(error.message)
+      if(!intervalRef.current){
+         const id = setInterval(fetchMoviesHandler , 5000)
+         intervalRef.current = id
+      }
+
+    }
+    setIsLoading(false);
+  }
+  
+
+
+  const cacelfetchMoviesHandler = () => {
+    if(intervalRef.current){
+      clearInterval(intervalRef.current)
+      intervalRef.current = null;
+      setError(null)
+    }
+  }
+
+
+
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <section className='section'>
+        <button onClick={fetchMoviesHandler}>Fetch Movies</button>
+      </section>
+      <section className='section1'>
+        {!isLoading && <MoviesList movies={movie} />}
+        <div className='section-data'>
+          {!isLoading && movie.length === 0 && !error && <h3>Found no movies</h3>}
+          {isLoading && <h2>Loading.....</h2>}
+          {!isLoading && error && <h4>{error}</h4>}
+          {error && <button onClick={cacelfetchMoviesHandler} className=''>Cancel Fetching</button>}
+
+        </div>
+      </section>
     </div>
+
   );
 }
 
