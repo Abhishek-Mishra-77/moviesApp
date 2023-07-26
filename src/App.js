@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import MoviesList from './components/MoviesList';
-import MovieForm from './MovieForm';
+import MovieForm from './components/MovieForm';
 import './App.css';
 
 
@@ -16,22 +16,26 @@ function App() {
     setIsLoading(true);
     setError(null)
     try {
-      const response = await fetch('https://swapi.dev/api/films')
+      const response = await fetch('https://react-1-c95e5-default-rtdb.firebaseio.com/movies.json')
 
       if (!response.ok) {
         throw new Error('Something went wrong ....Retrying')
       }
 
       const data = await response.json();
-      const transformedMovies = data.results.map((movieData) => {
-        return {
-          id: movieData.episode_id,
-          title: movieData.title,
-          openingText: movieData.opening_crawl,
-          releasedate: movieData.release_date
-        }
-      })
-      setMovies(transformedMovies)
+
+
+      let loadedMovies = [];
+      for (const key in data) {
+        loadedMovies.push({
+          id: key,
+          title: data[key].title,
+          openingText: data[key].openingText,
+          releasedate: data[key].date
+        })
+      }
+
+      setMovies(loadedMovies)
     }
     catch (error) {
       setError(error.message)
@@ -50,21 +54,48 @@ function App() {
   }, [fetchMoviesHandler])
 
 
-  const addNewMovie = (moviee) => {
-    console.log(moviee)
-    setMovies((movie) => {
-      return [...movie, { title: moviee.title, openingText: moviee.openingText, releasedate: moviee.date, id: Math.random().toString() }]
+  const addNewMovie = async (moviee) => {
+    const response = await fetch('https://react-1-c95e5-default-rtdb.firebaseio.com/movies.json', {
+      method: 'POST',
+      body: JSON.stringify(moviee),
+      headers: {
+        'Content-type': 'application.json'
+      }
     })
+    const data = await response.json();
+    console.log(data)
+
+    setMovies((movie) => {
+      return [...movie, moviee]
+    })
+
+  }
+
+  const removeMoviesHandler = async (id) => {
+    const response = await fetch(`https://react-1-c95e5-default-rtdb.firebaseio.com/movies/${id}.json`, {
+      method: 'DELETE',
+    })
+
+    setMovies((movie) => {
+      const newItems = movie.filter((item) => item.id !== id);
+      return newItems;
+    })
+
+    const data = await response.json();
+
   }
 
 
-  const cacelfetchMoviesHandler = () => {
+  const cancelfetchMoviesHandler = () => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current)
       intervalRef.current = null;
       setError(null)
     }
   }
+
+
+
 
 
 
@@ -77,12 +108,12 @@ function App() {
         <button onClick={fetchMoviesHandler}>Fetch Movies</button>
       </section>
       <section className='section1'>
-        {!isLoading && <MoviesList movies={movie} />}
+        {!isLoading && <MoviesList movies={movie} removeMoviesHandler={removeMoviesHandler} />}
         <div className='section-data'>
           {!isLoading && movie.length === 0 && !error && <h3>Found no movies</h3>}
           {isLoading && <h2>Loading.....</h2>}
           {!isLoading && error && <h4>{error}</h4>}
-          {error && <button onClick={cacelfetchMoviesHandler} className=''>Cancel Fetching</button>}
+          {error && <button onClick={cancelfetchMoviesHandler} className=''>Cancel Fetching</button>}
 
         </div>
       </section>

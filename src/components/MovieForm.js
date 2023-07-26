@@ -17,8 +17,10 @@ const MovieForm = (props) => {
 
         }
 
-        props.addNewMovie({title, date, openingText})
-
+        props.addNewMovie({ title, date, openingText })
+        setopeningText('')
+        setTitle('')
+        setDate('')
     }
 
 
